@@ -7,22 +7,45 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS Files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# Dependencies
+node_modules/
+backend/venv/
+venv/
+
+# Build artifacts
+.next/
+dist/
+dist-ssr/
+build/
+*.pyc
+
+# Environment Files
 .env
-venv
-__pycache__
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Databases and Local Storage
+backend/chroma_db/
+chroma_db/
+*.sqlite3
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+test_resume.txt
+debug_gemini.py
+debug_parser.py
+test_parser.py
+debug_pydantic.py
+server.log
 GEMINI.md

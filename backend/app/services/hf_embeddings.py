@@ -15,5 +15,3 @@ class HuggingFaceInferenceEmbeddings(Embeddings):
         """Embed query text."""
         embedding = self.model.encode(text)
         return embedding.tolist()
-
-        return result

@@ -8,7 +8,7 @@ from ..config import get_settings
 settings = get_settings()
 
 ROLE_PDF_MAPPING = {
-    "aiml": [ "burkov_100page.pdf"],
+    "aiml": ["mitchell_ml.pdf", "burkov_100page.pdf"],
     "datascience": ["intro_ml_python.pdf", "brownlee_algorithms.pdf"],
     "backend": ["mitchell_ml.pdf"]
 }

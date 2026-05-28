@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-import google.generativeai as genai
+from openai import OpenAI
 import json
 import re
 from ..database import get_database
@@ -45,8 +45,10 @@ async def get_results(session_id: str, db = Depends(get_database)):
     for q in questions:
         transcript += f"Q: {q['question_text']}\nA: {q.get('candidate_answer', 'No answer provided')}\n\n"
         
-    genai.configure(api_key=settings.raw_gemini_api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = OpenAI(
+        base_url="https://router.huggingface.co/v1",
+        api_key=settings.hf_token,
+    )
     
     prompt = SUMMARY_PROMPT.format(
         role=session["role"],
@@ -54,8 +56,15 @@ async def get_results(session_id: str, db = Depends(get_database)):
         transcript=transcript
     )
     
-    response = model.generate_content(prompt)
-    response_text = response.text
+    completion = client.chat.completions.create(
+        model="Qwen/Qwen2.5-7B-Instruct:together",
+        messages=[
+            {"role": "system", "content": "You are a technical recruiter. Respond only in JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        response_format={"type": "json_object"}
+    )
+    response_text = completion.choices[0].message.content
     
     json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
     if json_match:

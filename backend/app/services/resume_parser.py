@@ -1,5 +1,5 @@
 import pdfplumber
-import google.generativeai as genai
+from openai import OpenAI
 import json
 import re
 from ..config import get_settings
@@ -32,21 +32,27 @@ async def parse_resume(file_bytes: bytes, filename: str) -> dict:
     else:
         raw_text = file_bytes.decode("utf-8")
 
-    genai.configure(api_key=settings.raw_gemini_api_key)
-    # Use JSON mode for reliable output
-    model = genai.GenerativeModel(
-        "gemini-flash-latest",
-        generation_config={"response_mime_type": "application/json"}
+    client = OpenAI(
+        base_url="https://router.huggingface.co/v1",
+        api_key=settings.hf_token,
     )
-    
+
     prompt = EXTRACTION_PROMPT.format(resume_text=raw_text)
-    
+
     try:
-        response = model.generate_content(prompt)
-        extracted_data = json.loads(response.text)
+        completion = client.chat.completions.create(
+            model="Qwen/Qwen2.5-7B-Instruct:together",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that outputs only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        response_text = completion.choices[0].message.content
+        extracted_data = json.loads(response_text)
     except Exception as e:
         # Fallback to manual cleaning if JSON mode fails or returns unexpected format
-        response_text = response.text if 'response' in locals() else str(e)
+        response_text = completion.choices[0].message.content if 'completion' in locals() else str(e)
         clean_json = response_text
         if "```json" in response_text:
             clean_json = response_text.split("```json")[1].split("```")[0]

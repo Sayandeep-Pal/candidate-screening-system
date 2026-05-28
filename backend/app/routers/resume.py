@@ -37,4 +37,6 @@ async def upload_resume(file: UploadFile = File(...), db = Depends(get_database)
             "domain_exposure": resume_doc.domain_exposure
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=422, detail=f"Failed to parse resume: {str(e)}")
